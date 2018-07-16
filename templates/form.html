@@ -30,11 +30,11 @@
       <div class="text-center">
       <div class = "form-group"  style="text-align: center;" >
         <label for="moisture">Moisture
-        <input type="number" class="form-control" id="moisture" name="moisture" value="56"></label>
+        <input type="number" class="form-control" id="moisture" name="moisture" value={{ moisture_ob }}></label>
         <label for="temperature">Temperature
-        <input type="number" class="form-control" id="temperature" name="temperature" value="56"></label>
+        <input type="number" class="form-control" id="temperature" name="temperature" value={{ temperature_ob }}></label>
         <label for="humidity">Humidity
-        <input type="number" class="form-control" id="humidity" name="humidity" value="80"></label>
+        <input type="number" class="form-control" id="humidity" name="humidity" value={{ humidity_ob }}></label>
         <!--{{ form.moisture.label }} {{ form.moisture }} <br>
         {{ form.temperature.label }} {{ form.temperature }} <br>
         {{ form.humidity.label }} {{ form.humidity }} <br>-->
@@ -50,5 +50,6 @@
 	<form action ="{{ url_for('ready') }}" method=post role ="form">
 		<button type="Use NodeMCU" class="btn btn-success"> Use NodeMCU </button>
 	</form>
+	
 	
 {% endblock %}

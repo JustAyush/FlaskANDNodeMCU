@@ -69,10 +69,10 @@ void loop() {
    http.addHeader("Content-Type", "application/json");  //Specify content-type header
  
    int httpCode = http.POST(JSONmessageBuffer);   //Send the request
-   String payload = http.getString();                  //Get the response payload
+   //String payload = http.getString();                  //Get the response payload
  
    Serial.println(httpCode);   //Print HTTP return code
-   Serial.println(payload);    //Print request response payload
+   //Serial.println(payload);    //Print request response payload
  
    http.end();  //Close connection
  

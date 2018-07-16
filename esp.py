@@ -10,24 +10,32 @@ app.secret_key = 'development key'
 
 loaded_model = pickle.load(open('g.sav', 'rb'))
 
+moisture_ob = 0
+temperature_ob = 0
+humidity_ob = 0
+
 class InputForm(Form):
     moisture = DecimalField("Moisture: ", [validators.Required()])
     temperature = DecimalField("Temperature (%): ",[validators.Required()])
     humidity = DecimalField("Humidity (%): ",[validators.Required()])
 
-
+	
 @app.route('/yoESP', methods = ['POST'])
 def ESPHandler():
+	global moisture_ob
+	global temperature_ob	
+	global humidity_ob	
 	content = request.get_json()
-	moisture = content['moisture']
-	temperature = content['temperature']
-	humidity = content['humidity']	
-	return 'NodeMCU'
+	moisture_ob = content['moisture']
+	temperature_ob = content['temperature']
+	humidity_ob = content['humidity']
+	return "NodeMCU"
 		
 
 @app.route('/', methods =['GET', 'POST'])
 def home():
     form = InputForm(request.form)
+	#moisture = temperature = humidity = 70
     if request.method == 'POST':
         if form.validate() == False:
             flash('All fields are required.')
@@ -55,7 +63,7 @@ def home():
                 crop = 'Wheat'
             return render_template('thatCrop.html', crop = crop)
     if request.method == 'GET':
-        return render_template('form.html', form = form)
+        return render_template('form.html', form = form, moisture_ob = moisture_ob, temperature_ob = temperature_ob, humidity_ob = humidity_ob)
 
 @app.route('/readycode', methods =['POST','GET'])
 def ready():
