@@ -4,6 +4,8 @@
 #include <ESP8266HTTPClient.h>
 #include <ArduinoJson.h>
 #include <String.h>
+#include <dht.h>
+
 
 const char *ssid = "prometheus_wlink";  //ENTER YOUR WIFI SETTINGS
 const char *password = "7550882670";
@@ -11,6 +13,10 @@ const char *password = "7550882670";
 bool state = false;
 
 ESP8266WebServer server(80);
+
+const int sensor_pin = A0;
+dht DHT;
+#define DHT11_PIN 14
 
 void setup() {
   // put your setup code here, to run once:
@@ -53,10 +59,24 @@ void loop() {
    if(WiFi.status()== WL_CONNECTED){   //Check WiFi connection status
    StaticJsonBuffer<300> JSONbuffer;   //Declaring static JSON buffer
    JsonObject& JSONencoder = JSONbuffer.createObject();  
+
+   int moisture_percentage;
+
+   moisture_percentage = ( 100.00 - ( (analogRead(sensor_pin)/1023.00) * 100.00 ) );
+
+   Serial.print("Soil Moisture(in Percentage) = ");
+   Serial.print(moisture_percentage);
+   Serial.println("%");
+
+   int chk = DHT.read11(DHT11_PIN);
+   Serial.print("Temperature = ");
+   Serial.println(DHT.temperature);
+   Serial.print("Humidity = ");
+   Serial.println(DHT.humidity);
         
-   JSONencoder["moisture"] = "56";
-   JSONencoder["temperature"] = "56";
-   JSONencoder["humidity"] = "80";
+   JSONencoder["moisture"] = moisture_percentage;
+   JSONencoder["temperature"] = DHT.temperature;
+   JSONencoder["humidity"] = DHT.humidity;
               
    char JSONmessageBuffer[300];
    JSONencoder.prettyPrintTo(JSONmessageBuffer, sizeof(JSONmessageBuffer));
@@ -105,4 +125,11 @@ void handleBody(){
       
   }
 
+  /**
+   NodeMCU-Sensors connections:
+   Moisture sensor
+   A0->A0, Vcc->3V3 Gnd->Gnd
+   DHT11 sensor
+   out->D5, Vcc->3V3 Gnd->Gnd
 
+  **/
