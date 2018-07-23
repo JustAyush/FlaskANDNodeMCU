@@ -48,14 +48,14 @@ class InputForm(Form):
 
 			
 class LoginForm(FlaskForm):
-	username = StringField('username', validators=[InputRequired(), Length(min=4, max=15)])
-	password = PasswordField('password', validators=[InputRequired(), Length(min=8, max=80)])
-	remember = BooleanField('remember me')
+	username = StringField('Username', validators=[InputRequired(), Length(min=4, max=15)])
+	password = PasswordField('Password', validators=[InputRequired(), Length(min=8, max=80)])
+	remember = BooleanField('Remember me')
 	
 class RegisterForm(FlaskForm):
-	email = StringField('email', validators=[InputRequired(), Email(message='Invalid email'), Length(max=50)])
-	username = StringField('username', validators=[InputRequired(), Length(min=4, max=15)])
-	password = PasswordField('password', validators=[InputRequired(), Length(min=8, max=80)])	
+	email = StringField('Email', validators=[InputRequired(), Email(message='Invalid email'), Length(max=50)])
+	username = StringField('Username', validators=[InputRequired(), Length(min=4, max=15)])
+	password = PasswordField('Password', validators=[InputRequired(), Length(min=8, max=80)])	
 	
 	
 @app.route('/yoESP', methods = ['POST'])
@@ -69,6 +69,32 @@ def ESPHandler():
 	humidity_ob = content['humidity']
 	return "NodeMCU"
 		
+
+@app.route('/yoAndroid', methods = ['POST'])
+def AndroidHandler():	
+	temperature = request.form.get('temperature')
+	moisture = request.form.get('moisture')
+	humidity = request.form.get('humidity')
+	
+	input_values = [[(moisture), (temperature), (humidity)]]
+	result = loaded_model.predict(input_values)
+	if result == 0:
+		crop = 'Corn'
+	elif result == 1:
+		crop = 'Maize'
+	elif result == 2:
+		crop = 'Potato'
+	elif result == 3:
+		crop = 'Rice'
+	elif result == 4:
+		crop = 'Sugarcane'
+	elif result == 5:
+		crop = 'Tomato'
+	else:
+		crop = 'Wheat'
+	
+	return crop
+
 
 @app.route('/', methods =['GET', 'POST'])
 @login_required
@@ -107,12 +133,12 @@ def home():
 @app.route('/readycode', methods =['POST','GET'])
 def ready():
 	if request.method =='POST':
-		#r = requests.post("http://192.168.100.98:80/body")
-		url = 'http://192.168.100.98:80/body'
+		#r = requests.post("http://192.168.100.26:80/body")
+		url = 'http://192.168.100.26:80/body'
 		payload={'fruit':'apple'}
 		headers = {'content-type': 'application/json'}
 		r = requests.post(url, data = json.dumps(payload), headers=headers)
-		return render_template('intermediate.html')
+		return redirect(url_for('home'))
 	else:
 		return 'No'
 		
@@ -133,9 +159,12 @@ def login():
 				login_user(user, remember=form.remember.data)
 				return redirect(url_for('home'))
 			else: 
-				return '<h1> Invalid password </h1>'
+				flash('Invalid Username')
+				return redirect(url_for('login'))
+				
 		else:
-			return '<h1> Invalid username </h1>'
+			flash('Invalid Password')
+			return redirect(url_for('login'))
 			
 	return render_template('login.html', form=form)
 

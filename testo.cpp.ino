@@ -7,8 +7,8 @@
 #include <dht.h>
 
 
-const char *ssid = "prometheus_wlink";  //ENTER YOUR WIFI SETTINGS
-const char *password = "7550882670";
+const char *ssid = "Light111";  //ENTER YOUR WIFI SETTINGS
+const char *password = "9867137105";
 
 bool state = false;
 
@@ -43,6 +43,7 @@ void setup() {
 
   
   server.on("/body",handleBody);
+  server.on("/bodyAndroid",handleBodyAndroid);
   server.begin();
   Serial.println("Server Listening");
 
@@ -74,9 +75,9 @@ void loop() {
    Serial.print("Humidity = ");
    Serial.println(DHT.humidity);
         
-   JSONencoder["moisture"] = moisture_percentage;
-   JSONencoder["temperature"] = DHT.temperature;
-   JSONencoder["humidity"] = DHT.humidity;
+   JSONencoder["moisture"] = "60";
+   JSONencoder["temperature"] = "56";
+   JSONencoder["humidity"] = "85";
               
    char JSONmessageBuffer[300];
    JSONencoder.prettyPrintTo(JSONmessageBuffer, sizeof(JSONmessageBuffer));
@@ -85,7 +86,7 @@ void loop() {
 
    HTTPClient http;    //Declare object of class HTTPClient
  
-   http.begin("http://192.168.100.72:8090/yoESP");      //Specify request destination
+   http.begin("http://" + server.client().remoteIP().toString() + ":8090/yoESP");      //Specify request destination
    http.addHeader("Content-Type", "application/json");  //Specify content-type header
  
    int httpCode = http.POST(JSONmessageBuffer);   //Send the request
@@ -125,11 +126,25 @@ void handleBody(){
       
   }
 
+  void handleBodyAndroid(){
+   StaticJsonBuffer<200> jsonBuffer;
+   JsonObject& agro=jsonBuffer.createObject();
+   /*agro["temperature"]=DHT.humidity;
+   agro["humidity"]=DHT.temperature;
+   agro["moisture"]=moisture_percentage;  */ 
+   agro["temperature"]="50";
+   agro["humidity"]="60";
+   agro["moisture"]="70";
+   char crops[100];
+   agro.prettyPrintTo(crops, sizeof(crops));
+   server.send(200, "text/plain", crops);
+      
+  }
+  
   /**
    NodeMCU-Sensors connections:
    Moisture sensor
    A0->A0, Vcc->3V3 Gnd->Gnd
    DHT11 sensor
    out->D5, Vcc->3V3 Gnd->Gnd
-
   **/
